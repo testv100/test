@@ -1,1 +1,1 @@
-
+Sample README RU
