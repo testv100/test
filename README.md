@@ -16,7 +16,6 @@ The system allows you to upload student learning results, analyze performance by
   <img src="https://img.shields.io/badge/python-3.11%2B-blue" />
   <img src="https://img.shields.io/badge/django-5.2.8-green" />
   <img src="https://img.shields.io/badge/report-PDF-red" />
-  <img src="https://img.shields.io/badge/license-MIT-yellow" />
 </p>
 
 ---
