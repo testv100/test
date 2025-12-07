@@ -1,18 +1,15 @@
 from pathlib import Path
 
-# БАЗОВЫЕ НАСТРОЙКИ ПУТЕЙ
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ОБЯЗАТЕЛЬНО: секретный ключ (для разработки можно любой)
 SECRET_KEY = 'django-insecure-edu-analytics-demo-secret-key-1234567890'
 
-# РЕЖИМ ОТЛАДКИ (для разработки должен быть True)
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
 
-# ПРИЛОЖЕНИЯ
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -20,11 +17,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'analytics',  # наше приложение
-]
+    'analytics', 
 
 
-# ПРОМЕЖУТОЧНОЕ ПО (middleware)
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -36,16 +31,14 @@ MIDDLEWARE = [
 ]
 
 
-# КОРНЕВОЙ ФАЙЛ URL
+
 ROOT_URLCONF = 'config.urls'
 
 
-# ШАБЛОНЫ
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # Можно и без DIRS, т.к. у нас шаблоны внутри приложения,
-        # но на всякий случай добавим:
+ 
         'DIRS': [BASE_DIR / 'analytics' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -60,11 +53,10 @@ TEMPLATES = [
 ]
 
 
-# WSGI-ПРИЛОЖЕНИЕ
+
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-# БАЗА ДАННЫХ (SQLite для локальной разработки)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -73,20 +65,18 @@ DATABASES = {
 }
 
 
-# ВАЛИДАТОРЫ ПАРОЛЕЙ (можно оставить как есть)
+
 AUTH_PASSWORD_VALIDATORS = []
 
 
-# ЛОКАЛИЗАЦИЯ
 LANGUAGE_CODE = 'ru-ru'
 
-TIME_ZONE = 'Europe/Vilnius'  # можешь поставить 'Europe/Moscow', если хочешь
+TIME_ZONE = 'Europe/Vilnius'  
 
 USE_I18N = True
 USE_TZ = True
 
 
-# СТАТИЧЕСКИЕ ФАЙЛЫ
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
@@ -94,6 +84,24 @@ STATICFILES_DIRS = [
 ]
 
 
-# АВТОТИП ПОЛЕЙ ID
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/admin/login/'
+# В самый конец файла добавь:
+import os
+
+if 'RENDER' in os.environ:
+    ALLOWED_HOSTS = ['.onrender.com', 'localhost', '127.0.0.1']
+    DEBUG = False
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'временный-ключ')
+    
+ 
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(
+            default='sqlite:///db.sqlite3',
+            conn_max_age=600
+        )
+    }
+    
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
