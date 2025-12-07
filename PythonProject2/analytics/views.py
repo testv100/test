@@ -59,7 +59,6 @@ def dashboard(request):
     discipline_id = int(discipline_id_raw) if discipline_id_raw else None
     teacher_id = int(teacher_id_raw) if teacher_id_raw else None
 
-    # Если пользователь — преподаватель, фиксируем его как фильтр по преподавателю
     limit_to_teacher = False
     current_teacher = None
     if not teacher_id and is_teacher(request.user):
@@ -87,7 +86,6 @@ def dashboard(request):
     if teacher_id:
         results_qs = results_qs.filter(teacher_id=teacher_id)
 
-    # средний балл по группам
     groups_stats = (
         Group.objects
         .filter(students__results__in=results_qs)
@@ -99,7 +97,6 @@ def dashboard(request):
         .distinct()
     )
 
-    # средний балл по дисциплинам
     disciplines_stats = (
         Discipline.objects
         .filter(results__in=results_qs)
@@ -111,7 +108,6 @@ def dashboard(request):
         .distinct()
     )
 
-    # динамика по годам (по полю semester.year)
     year_stats = (
         results_qs
         .values('semester__year')
@@ -174,7 +170,6 @@ def group_profile(request, group_id):
         .distinct()
     )
 
-    # Средний балл по студентам (как в group_detail)
     students_stats = (
         group.students
         .annotate(avg_grade=Avg('results__grade'))
@@ -196,7 +191,6 @@ def discipline_detail(request, discipline_id):
     """
     discipline = get_object_or_404(Discipline, id=discipline_id)
 
-    # Средний балл по группам, где есть эта дисциплина
     groups_stats = (
         Group.objects
         .filter(students__results__discipline=discipline)
@@ -459,7 +453,6 @@ def export_pdf(request):
         .order_by('semester__year')
     )
 
-    # --- Регистрируем кириллический шрифт ---
     font_path = os.path.join(settings.BASE_DIR, 'analytics', 'fonts', 'DejaVuSans.ttf')
     base_font = 'Helvetica'
     try:
@@ -467,7 +460,6 @@ def export_pdf(request):
             pdfmetrics.registerFont(TTFont('DejaVuSans', font_path))
             base_font = 'DejaVuSans'
     except Exception:
-        # если что-то пошло не так со шрифтом – просто используем Helvetica
         base_font = 'Helvetica'
 
     response = HttpResponse(content_type='application/pdf')
@@ -477,7 +469,7 @@ def export_pdf(request):
     width, height = A4
     y = height - 40
 
-    # Заголовок
+    
     p.setFont(base_font, 16)
     p.drawString(50, y, "Отчёт по учебной аналитике")
     y -= 30
@@ -525,4 +517,5 @@ def export_pdf(request):
     p.showPage()
     p.save()
     return response
+
 
