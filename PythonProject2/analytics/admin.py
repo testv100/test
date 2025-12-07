@@ -33,11 +33,12 @@ class ResultAdmin(admin.ModelAdmin):
     list_display = ('student', 'discipline', 'semester', 'grade', 'attendance_percent')
     list_filter = ('discipline', 'semester', 'student__group')
 from django.contrib import admin
-from .models import AuditLog  # + остальные модели, если уже есть
+from .models import AuditLog  
 
 @admin.register(AuditLog)
 class AuditLogAdmin(admin.ModelAdmin):
     list_display = ('created_at', 'user', 'action')
     list_filter = ('action', 'created_at')
     search_fields = ('details',)
+
 
