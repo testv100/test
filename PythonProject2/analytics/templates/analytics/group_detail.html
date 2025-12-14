@@ -1,0 +1,50 @@
+{% extends "analytics/base.html" %}
+
+{% block title %}Группа {{ group.name }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title mb-0">Группа {{ group.name }}</h1>
+            <p class="text-muted mb-0">
+                Список студентов и их средний балл по всем дисциплинам.
+            </p>
+        </div>
+        <a href="{% url 'analytics:dashboard' %}" class="btn btn-outline-secondary btn-sm">
+            ← На панель
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm align-middle table-hover">
+                <thead class="table-light">
+                <tr>
+                    <th>Студент</th>
+                    <th>Средний балл</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if students_stats %}
+                    {% for s in students_stats %}
+                        <tr>
+                            <td class="fw-semibold">{{ s.full_name }}</td>
+                            <td>{{ s.avg_grade|default:"—" }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="2" class="text-center text-muted">
+                            Для данной группы пока нет результатов.
+                        </td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
