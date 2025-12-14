@@ -1,150 +1,62 @@
-# test
-The system allows you to upload student learning results, analyze performance by group, subject, and instructor, visualize key performance indicators (KPIs), and generate professional reports in CSV and PDF formats. It supports a role-based access model, REST API, and user action logging.
+Система позволяет загружать результаты обучения студентов, анализировать успеваемость по группам, предметам и преподавателям, визуализировать ключевые показатели эффективности (KPI) и создавать профессиональные отчеты в форматах CSV и PDF. Она поддерживает модель доступа на основе ролей, REST API и регистрацию действий пользователей.
 
-# 🎓 Academic Performance Analytics (Django)
+# Аналитика академической успеваемости (Django)
 
-> From basic dashboards to advanced PDF reports: analyze how students learn, track KPIs, and automate reporting for an electronic university. 💪🚀
+Проект разработан в рамках выпускной квалификационной работы (бакалавриат) по теме:
+«Автоматизация анализа и оценки показателей образовательного процесса в электронном университете».
 
-> [!NOTE]
-> This project was originally created as a university graduation thesis.  
-> It is not a full-scale production system, but a compact, educational analytics platform built with Django.
+Веб-приложение на Django предназначено для загрузки результатов обучения из CSV, расчёта показателей (средний балл, посещаемость, динамика), визуализации KPI и формирования отчётов в CSV/PDF.
+Также реализованы ролевая модель доступа, журналирование действий пользователей и небольшой REST API.
 
----
+# Назначение проекта
 
-<p align="center">
-  <img src="https://img.shields.io/badge/build-passing-brightgreen" />
-  <img src="https://img.shields.io/badge/python-3.11%2B-blue" />
-  <img src="https://img.shields.io/badge/django-5.2.8-green" />
-  <img src="https://img.shields.io/badge/report-PDF-red" />
-</p>
+Система предназначена для:
+загрузки результатов обучения студентов из CSV-файлов;
+хранения данных в реляционной базе данных;
+расчета показателей успеваемости и посещаемости;
+анализа динамики показателей по периодам обучения;
+формирования отчетов в форматах CSV и PDF.
 
----
+# Функциональные возможности
 
-From CSV import to PDF export, this project shows how to build an **end-to-end academic analytics system**:
+Импорт данных
+загрузка CSV-файла с результатами обучения;
+валидация входных данных;
+автоматическое создание связанных сущностей (группы, дисциплины, студенты, семестры).
 
-- Upload raw student results  
-- Aggregate and visualize data per group, discipline, teacher, and semester  
-- Export data and analytics to **CSV** and **PDF**  
-- Restrict access with **role-based permissions**  
-- Expose metrics through a small **REST API**
+# Аналитика
 
-Have fun exploring the code! 
+расчет среднего балла по группе и дисциплине;
+расчет показателей посещаемости;
+агрегирование данных по учебным периодам;
+формирование сводных KPI.
 
----
+# Отчеты
 
-## 1️⃣ What is this project?
+экспорт таблиц результатов в CSV;
+генерация агрегированных PDF-отчетов (с поддержкой кириллицы).
 
-<details>
-<summary><strong>Click to expand</strong></summary>
+# Ролевая модель
 
-This repository contains a **Django-based web application** that automates:
+Администратор — полный доступ;
+Менеджер — импорт данных, просмотр аналитики, экспорт отчетов;
+Преподаватель — доступ только к данным по своим дисциплинам.
 
-- importing student learning results from CSV;
-- calculating average grades and other metrics;
-- visualizing performance via dashboards and charts;
-- exporting reports to CSV and PDF;
-- logging critical actions (uploads, exports, etc.);
-- separating access for teachers, managers, and admins.
+# Журнал
 
-It was built as a **graduation thesis** on the topic of:
+логирование операций импорта и экспорта данных.
 
-> “Automation of analysis and evaluation of educational process indicators in an electronic university”.
-
-</details>
-
----
-
-## 2️⃣ What can the system do?
-
-<details>
-<summary><strong>Core features</strong></summary>
-
-### 📥 Data Import
-- CSV upload (`;` separator, UTF-8)
-- Auto-creation of:
-  - groups  
-  - students  
-  - disciplines  
-  - teachers  
-  - semesters  
-  - results (grade + attendance)
-
-### 📊 Analytics Dashboard
-- Average grade per **group** and **discipline**
-- Yearly average grade chart
-- KPI cards:
-  - total students
-  - total groups
-  - total disciplines
-  - global average grade
-- Filters: by **semester**, **discipline**, **teacher**
-
-### 👨‍🏫 Teacher Mode
-- Teacher sees only **their own** disciplines and groups
-- Teacher cannot upload or export data
-
-### 📈 Detail Pages
-- **Group profile**:
-  - average grade per discipline
-  - average grade per student
-- **Discipline profile**:
-  - group performance
-  - student ranking
-
-### 📤 Export
-- Export filtered results to **CSV**
-- Generate aggregated **PDF** report (Cyrillic-friendly font)
-
-### 🔐 Roles
-- **Teacher** — read-only analytics for their courses
-- **Manager** — upload CSV, export CSV/PDF, full analytics
-- **Admin** — full control + Django admin
-
-### 🧾 Audit Log
-- Logs:
-  - imports
-  - CSV exports
-  - PDF exports
-
-### 🌓 Dark Mode
-- Light/dark theme toggle
-- Preference stored in `localStorage`
-
-### 🧩 REST API
-- `/api/summary/` — JSON with:
-  - KPI
-  - group stats
-  - yearly stats
-
-</details>
-
----
-
-## 3️⃣ How is the project structured?
-
-<details>
-<summary><strong>Project layout</strong></summary>
+# Структура проекта
 
 ```text
-.
-├─ config/              # Django project settings & URLs
-│  ├─ settings.py
-│  ├─ urls.py
-│  ├─ wsgi.py
-│  └─ asgi.py
-├─ analytics/           # Main application
-│  ├─ models.py         # Group, Student, Discipline, Teacher, Result, Semester, AuditLog
-│  ├─ views.py          # Dashboard, profiles, upload, export, API
-│  ├─ urls.py           # App routes
-│  ├─ admin.py          # Admin registration
-│  ├─ forms.py          # CSV upload form
-│  ├─ templates/
-│  │   └─ analytics/    # HTML templates (dashboard, profiles, upload, etc.)
-│  ├─ static/
-│  │   └─ analytics/style.css   # Light/Dark theme
-│  └─ fonts/
-│      └─ DejaVuSans.ttf        # Font for Cyrillic PDF
-├─ docs/                # Extra docs (architecture, API, diagrams, report)
-├─ manage.py
-├─ requirements.txt
-├─ README.md
+config/        – настройки проекта Django
+analytics/     – основное приложение:
+  models.py    – модели предметной области
+  views.py     – серверная логика и представления
+  forms.py     – формы загрузки данных
+  urls.py      – маршрутизация
+  templates/   – HTML-шаблоны
+  migrations/  – миграции базы данных
+docs/          – документация (формат CSV, метрики)
+data/          – пример входных данных
+
