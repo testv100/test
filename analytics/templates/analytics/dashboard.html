@@ -1,0 +1,331 @@
+{% extends "analytics/base.html" %}
+{% load static %}
+
+{% block title %}Панель аналитики{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<!-- Шапка + фильтры -->
+<div class="row mb-4 align-items-end">
+    <div class="col-md-6">
+        <h1 class="page-title mb-0">Панель аналитики</h1>
+        <p class="text-muted mb-0">
+            Обзор успеваемости студентов по группам и дисциплинам.
+        </p>
+    </div>
+    <div class="col-md-6">
+        <form method="get" class="row g-2 justify-content-md-end mt-3 mt-md-0">
+                        <div class="col-md-4">
+                <label class="form-label form-label-sm">Преподаватель</label>
+
+                {% if limit_to_teacher and current_teacher %}
+                    <div class="form-control form-control-sm bg-light">
+                        {{ current_teacher.full_name }}
+                    </div>
+                    <input type="hidden" name="teacher" value="{{ current_teacher.id }}">
+                {% else %}
+                    <select name="teacher" class="form-select form-select-sm">
+                        <option value="">Все</option>
+                        {% for t in teachers_all %}
+                            <option value="{{ t.id }}"{% if selected_teacher_id == t.id %} selected{% endif %}>
+                                {{ t.full_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                {% endif %}
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label form-label-sm">Дисциплина</label>
+                <select name="discipline" class="form-select form-select-sm">
+                    <option value="">Все</option>
+                    {% for d in disciplines_all %}
+                        <option value="{{ d.id }}"{% if selected_discipline_id == d.id %} selected{% endif %}>
+                            {{ d.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label form-label-sm">Преподаватель</label>
+                <select name="teacher" class="form-select form-select-sm">
+                    <option value="">Все</option>
+                    {% for t in teachers_all %}
+                        <option value="{{ t.id }}"{% if selected_teacher_id == t.id %} selected{% endif %}>
+                            {{ t.full_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 d-flex gap-2 align-items-end mt-2">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    Применить
+                </button>
+                <a href="{% url 'analytics:dashboard' %}"
+                   class="btn btn-outline-secondary btn-sm">
+                    Сброс
+                </a>
+                <a class="btn btn-outline-success btn-sm"
+                   href="{% url 'analytics:export_results' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}">
+                    Экспорт CSV
+                </a>
+                <a class="btn btn-outline-danger btn-sm"
+                   href="{% url 'analytics:export_pdf' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}">
+                    Экспорт PDF
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- KPI-показатели -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-3">
+                <div class="text-muted small">Средний балл</div>
+                <div class="h4 mb-0">{{ kpi_avg_grade|floatformat:2 }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-3">
+                <div class="text-muted small">Студентов</div>
+                <div class="h4 mb-0">{{ kpi_total_students }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-3">
+                <div class="text-muted small">Групп</div>
+                <div class="h4 mb-0">{{ kpi_total_groups }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body py-3">
+                <div class="text-muted small">Дисциплин</div>
+                <div class="h4 mb-0">{{ kpi_total_disciplines }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+
+    <!-- График по группам -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title mb-0">Средний балл по группам</h5>
+                    {% if groups_stats %}
+                        <span class="badge bg-primary-soft text-primary small">
+                            групп: {{ groups_stats|length }}
+                        </span>
+                    {% endif %}
+                </div>
+                <p class="text-muted small mb-3">
+                    Средний балл по каждой группе с учётом выбранных фильтров.
+                </p>
+
+                {% if groups_stats %}
+                    <canvas id="groupsChart" height="80"></canvas>
+                {% else %}
+                    <div class="empty-state">
+                        <p>
+                            Данных по группам пока нет. Загрузите файл с результатами обучения
+                            на вкладке <a href="{% url 'analytics:upload_results' %}">«Загрузка данных»</a>.
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- График по годам -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="card-title mb-2">Динамика по годам</h5>
+                <p class="text-muted small mb-3">
+                    Средний балл по годам обучения.
+                </p>
+                {% if year_stats %}
+                    <canvas id="yearsChart" height="80"></canvas>
+                {% else %}
+                    <div class="empty-state">
+                        <p>Недостаточно данных для построения графика.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Таблица по группам -->
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Таблица групп</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle table-hover">
+                        <thead class="table-light">
+                        <tr>
+                            <th>Группа</th>
+                            <th>Средний балл</th>
+                            <th>Количество оценок</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% if groups_stats %}
+                            {% for g in groups_stats %}
+                                <tr>
+                                    <td class="fw-semibold">{{ g.name }}</td>
+                                    <td>{{ g.avg_grade|default:"—" }}</td>
+                                    <td>{{ g.results_count }}</td>
+                                    <td class="text-end">
+                                        <a class="btn btn-outline-primary btn-sm"
+                                           href="{% url 'analytics:group_detail' g.id %}">
+                                            Студенты
+                                        </a>
+                                        <a class="btn btn-outline-secondary btn-sm"
+                                           href="{% url 'analytics:group_profile' g.id %}">
+                                            Профиль группы
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">
+                                    Нет данных для отображения.
+                                </td>
+                            </tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Таблица по дисциплинам -->
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Средний балл по дисциплинам</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle table-hover">
+                        <thead class="table-light">
+                        <tr>
+                            <th>Дисциплина</th>
+                            <th>Средний балл</th>
+                            <th>Количество оценок</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% if disciplines_stats %}
+                            {% for d in disciplines_stats %}
+                                <tr>
+                                    <td class="fw-semibold">{{ d.name }}</td>
+                                    <td>{{ d.avg_grade|default:"—" }}</td>
+                                    <td>{{ d.results_count }}</td>
+                                    <td class="text-end">
+                                        <a class="btn btn-outline-primary btn-sm"
+                                           href="{% url 'analytics:discipline_detail' d.id %}">
+                                            Профиль дисциплины
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">
+                                    Данные по дисциплинам пока не загружены.
+                                </td>
+                            </tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% if groups_stats or year_stats %}
+<script>
+    {% if groups_stats %}
+    const groupsLabels = [{% for g in groups_stats %}"{{ g.name }}",{% endfor %}];
+    const groupsData = [{% for g in groups_stats %}{{ g.avg_grade|default:"0" }},{% endfor %}];
+
+    const ctxGroups = document.getElementById('groupsChart').getContext('2d');
+    new Chart(ctxGroups, {
+        type: 'bar',
+        data: {
+            labels: groupsLabels,
+            datasets: [{
+                label: 'Средний балл',
+                data: groupsData,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {position: 'top'}
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    suggestedMax: 100
+                }
+            }
+        }
+    });
+    {% endif %}
+
+    {% if year_stats %}
+    const yearsLabels = [{% for y in year_stats %}"{{ y.semester__year }}",{% endfor %}];
+    const yearsData = [{% for y in year_stats %}{{ y.avg_grade|default:"0" }},{% endfor %}];
+
+    const ctxYears = document.getElementById('yearsChart').getContext('2d');
+    new Chart(ctxYears, {
+        type: 'line',
+        data: {
+            labels: yearsLabels,
+            datasets: [{
+                label: 'Средний балл по годам',
+                data: yearsData,
+                borderWidth: 2,
+                tension: 0.3,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {position: 'top'}
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    suggestedMax: 100
+                }
+            }
+        }
+    });
+    {% endif %}
+</script>
+{% endif %}
+
+{% endblock %}
