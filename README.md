@@ -46,6 +46,14 @@
 
 логирование операций импорта и экспорта данных.
 
+# Запуск проекта
+
+python -m venv venv
+source venv/bin/activate  
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+
 # Структура проекта
 
 ```text
@@ -59,4 +67,5 @@ analytics/     – основное приложение:
   migrations/  – миграции базы данных
 docs/          – документация (формат CSV, метрики)
 data/          – пример входных данных
+
 
