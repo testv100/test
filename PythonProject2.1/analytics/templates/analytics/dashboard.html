@@ -1,0 +1,216 @@
+{% extends "analytics/base.html" %}
+{% load static %}
+
+{% block title %}Панель аналитики{% endblock %}
+
+{% block extra_head %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+  <div>
+    <h1 class="page-title mb-0">Панель аналитики</h1>
+    <p class="text-muted mb-0">Агрегированные показатели успеваемости и посещаемости</p>
+  </div>
+</div>
+
+<!-- KPI -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted small">Средний балл</div>
+        <div class="display-6">{{ kpi.avg_grade|floatformat:2 }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted small">Оценок</div>
+        <div class="display-6">{{ kpi.results_count }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted small">Студентов</div>
+        <div class="display-6">{{ kpi.students }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted small">Дисциплин</div>
+        <div class="display-6">{{ kpi.disciplines }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Фильтры -->
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-3 align-items-end">
+
+      <div class="col-md-4">
+        <label class="form-label">Семестр</label>
+        <select name="semester" class="form-select form-select-sm">
+          <option value="">Все</option>
+          {% for s in semesters %}
+            <option value="{{ s.id }}" {% if selected_semester_id == s.id %}selected{% endif %}>
+              {{ s.year }} · {{ s.term }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Дисциплина</label>
+        <select name="discipline" class="form-select form-select-sm">
+          <option value="">Все</option>
+          {% for d in disciplines_all %}
+            <option value="{{ d.id }}" {% if selected_discipline_id == d.id %}selected{% endif %}>
+              {{ d.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Преподаватель</label>
+
+        {% if limit_to_teacher and current_teacher %}
+          <div class="form-control form-control-sm bg-light">
+            {{ current_teacher.full_name }}
+          </div>
+          <input type="hidden" name="teacher" value="{{ current_teacher.id }}">
+        {% else %}
+          <select name="teacher" class="form-select form-select-sm">
+            <option value="">Все</option>
+            {% for t in teachers_all %}
+              <option value="{{ t.id }}" {% if selected_teacher_id == t.id %}selected{% endif %}>
+                {{ t.full_name }}
+              </option>
+            {% endfor %}
+          </select>
+        {% endif %}
+      </div>
+
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary btn-sm">Применить</button>
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'analytics:dashboard' %}">Сбросить</a>
+
+        {% if is_manager %}
+          <div class="ms-auto d-flex gap-2">
+            <a class="btn btn-outline-primary btn-sm"
+               href="{% url 'analytics:export_results' %}?{{ request.GET.urlencode }}">
+              Экспорт CSV
+            </a>
+            <a class="btn btn-outline-primary btn-sm"
+               href="{% url 'analytics:export_pdf' %}?{{ request.GET.urlencode }}">
+              Экспорт PDF
+            </a>
+          </div>
+        {% endif %}
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- График -->
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h2 class="h6 mb-2">Динамика среднего балла по годам</h2>
+    <canvas id="yearChart" height="90"></canvas>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const labels = [{% for r in year_stats %}"{{ r.semester__year }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+  const data = [{% for r in year_stats %}{{ r.avg_grade|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}];
+
+  new Chart(document.getElementById("yearChart"), {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "Средний балл",
+        data: data,
+        tension: 0.3
+      }]
+    }
+  });
+</script>
+{% endblock %}
+<div class="row g-3">
+  <div class="col-12 col-xl-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="h6 mb-2">Распределение оценок</h2>
+        <canvas id="gradeChart" height="120"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="h6 mb-2">Проблемные группы</h2>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Группа</th>
+                <th class="text-end">Средний балл</th>
+                <th class="text-end">Оценок</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in bad_groups %}
+                <tr>
+                  <td>
+                    <a class="text-decoration-none"
+                       href="{% url 'analytics:group_detail' row.student__group__id %}">
+                      {{ row.student__group__name }}
+                    </a>
+                  </td>
+                  <td class="text-end">{{ row.avg_grade|floatformat:2 }}</td>
+                  <td class="text-end">{{ row.results_count }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="3" class="text-muted">Нет данных</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="small text-muted">Топ групп с минимальным средним баллом.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const gradeLabels = [{% for r in grade_dist %}"{{ r.grade }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+  const gradeCounts = [{% for r in grade_dist %}{{ r.cnt }}{% if not forloop.last %},{% endif %}{% endfor %}];
+
+  const gctx = document.getElementById('gradeChart');
+  if (gctx) {
+    new Chart(gctx, {
+      type: 'bar',
+      data: {
+        labels: gradeLabels,
+        datasets: [{ label: 'Кол-во', data: gradeCounts }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+  }
+</script>
