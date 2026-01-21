@@ -1,0 +1,43 @@
+{% extends "analytics/base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">{{ page_title }}</h1>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <p class="mb-2">Раздел для студентов: как пользоваться кабинетом и где смотреть результаты.</p>
+        <ol class="mb-0">
+          <li>Авторизуйтесь в системе</li>
+          <li>Откройте <a href="{% url 'analytics:dashboard' %}">Кабинет</a></li>
+          <li>Просматривайте показатели по группам и дисциплинам</li>
+          <li>При необходимости выгружайте отчёты (если доступно вашей роли)</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header">Подсказки</div>
+      <div class="card-body">
+        <ul class="mb-0">
+          <li>Если не видите данных — обратитесь к администратору (возможно, ещё не импортировали результаты).</li>
+          <li>Для смены пользователя используйте кнопку «Выйти» в верхней панели.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">Ссылки</div>
+      <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action" href="{% url 'analytics:dashboard' %}">Кабинет</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'analytics:export_results' %}">Экспорт CSV</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'analytics:info' 'distance' %}">Дистанционное</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

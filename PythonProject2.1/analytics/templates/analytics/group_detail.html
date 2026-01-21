@@ -1,0 +1,61 @@
+{% extends "analytics/base.html" %}
+{% block title %}Группа {{ group.name }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Группа {{ group.name }}</h1>
+
+<form method="get" class="row g-2 mb-3">
+  <div class="col-md-6">
+    <input type="text" name="q" value="{{ q }}" class="form-control"
+           placeholder="Поиск по ФИО студента">
+  </div>
+  <div class="col-md-2">
+    <button class="btn btn-vitte w-100">Найти</button>
+  </div>
+</form>
+
+<div class="table-responsive vitte-card">
+<table class="table table-hover align-middle">
+  <thead>
+    <tr>
+      <th>
+        <a href="?sort=student__full_name&dir={% if dir == 'asc' %}desc{% else %}asc{% endif %}">
+          Студент
+        </a>
+      </th>
+      <th>
+        <a href="?sort=avg&dir={% if dir == 'asc' %}desc{% else %}asc{% endif %}">
+          Средний балл
+        </a>
+      </th>
+      <th>Оценок</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in page_obj %}
+      <tr>
+        <td>{{ row.student__full_name }}</td>
+        <td>{{ row.avg|floatformat:2 }}</td>
+        <td>{{ row.count }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="3" class="text-muted text-center">Нет данных</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+<nav class="mt-3">
+  <ul class="pagination">
+    {% for p in page_obj.paginator.page_range %}
+      <li class="page-item {% if p == page_obj.number %}active{% endif %}">
+        <a class="page-link" href="?page={{ p }}">{{ p }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

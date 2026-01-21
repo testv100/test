@@ -1,0 +1,29 @@
+{% extends "analytics/base.html" %}
+{% block title %}Уведомления{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Уведомления</h1>
+
+
+<div class="card">
+  <div class="list-group list-group-flush">
+    {% for n in items %}
+      <div class="list-group-item">
+        <div class="d-flex justify-content-between">
+          <div>
+            <div class="{% if not n.is_read %}fw-bold{% endif %}">{{ n.title }}</div>
+            <div class="text-muted small">{{ n.created_at|date:"d.m.Y H:i" }}</div>
+          </div>
+          <div>
+            {% if not n.is_read %}
+              <a class="btn btn-sm btn-outline-secondary" href="{% url 'analytics:notification_mark_read' n.id %}">Прочитано</a>
+            {% endif %}
+          </div>
+        </div>
+        {% if n.message %}<div class="mt-2">{{ n.message }}</div>{% endif %}
+      </div>
+    {% empty %}
+      <div class="list-group-item text-muted">Уведомлений нет.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

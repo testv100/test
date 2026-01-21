@@ -1,0 +1,32 @@
+{% extends "analytics/base.html" %}
+{% block title %}История импортов{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">История импортов CSV</h1>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-striped mb-0">
+      <thead>
+        <tr>
+          <th>Дата</th><th>Файл</th><th>Строк</th><th>Создано</th><th>Обновлено</th><th>Ошибок</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for b in batches %}
+        <tr>
+          <td>{{ b.created_at|date:"d.m.Y H:i" }}</td>
+          <td>{{ b.file_name }}</td>
+          <td>{{ b.total_rows }}</td>
+          <td>{{ b.created_results }}</td>
+          <td>{{ b.updated_results }}</td>
+          <td>{% if b.error_rows %}<span class="badge bg-danger">{{ b.error_rows }}</span>{% else %}0{% endif %}</td>
+          <td><a class="btn btn-sm btn-outline-primary" href="{% url 'analytics:import_batch_detail' b.id %}">Детали</a></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7" class="text-muted">Импортов ещё нет.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "analytics/base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">{{ page_title }}</h1>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header">Публичные страницы</div>
+      <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action" href="{% url 'analytics:home' %}">Главная</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'analytics:info' 'about' %}">Сведения</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'analytics:info' 'applicant' %}">Абитуриенту</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'analytics:info' 'student' %}">Студенту</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'analytics:info' 'distance' %}">Дистанционное</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header">Личный кабинет</div>
+      <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action" href="{% url 'login' %}">Вход</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'analytics:register' %}">Регистрация</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'analytics:dashboard' %}">Кабинет</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'analytics:export_results' %}">Экспорт CSV</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'analytics:export_pdf' %}">Экспорт PDF</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

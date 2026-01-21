@@ -1,0 +1,38 @@
+{% extends "analytics/base.html" %}
+{% block title %}Детали импорта{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Детали импорта</h1>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <div><b>Дата:</b> {{ batch.created_at|date:"d.m.Y H:i" }}</div>
+    <div><b>Файл:</b> {{ batch.file_name }}</div>
+    <div class="mt-2">
+      <span class="me-3"><b>Строк:</b> {{ batch.total_rows }}</span>
+      <span class="me-3"><b>Создано:</b> {{ batch.created_results }}</span>
+      <span class="me-3"><b>Обновлено:</b> {{ batch.updated_results }}</span>
+      <span><b>Ошибок:</b> {{ batch.error_rows }}</span>
+    </div>
+  </div>
+</div>
+
+<h2 class="h5">Ошибки</h2>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead><tr><th>#</th><th>Ошибка</th><th>Строка</th></tr></thead>
+      <tbody>
+      {% for e in batch.errors.all %}
+        <tr>
+          <td>{{ e.row_number }}</td>
+          <td class="text-danger">{{ e.error }}</td>
+          <td><code style="white-space:pre-wrap">{{ e.raw_row }}</code></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="3" class="text-muted">Ошибок нет.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

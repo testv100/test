@@ -1,0 +1,131 @@
+{% extends "analytics/base.html" %}
+
+{% block title %}{{ slug|capfirst }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">
+  {% if slug == "about" %}
+    <i class="bi bi-info-circle me-1"></i>О системе
+  {% elif slug == "search" %}
+    <i class="bi bi-search me-1"></i>Поиск
+  {% else %}
+    <i class="bi bi-info-circle me-1"></i>{{ slug|capfirst }}
+  {% endif %}
+</h1>
+
+{% if slug == "about" %}
+  <p class="text-muted">
+    Система предназначена для анализа успеваемости студентов, расчёта KPI и формирования отчётов.
+  </p>
+
+  <div class="row g-3 mt-3">
+    <div class="col-12 col-lg-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title mb-3">KPI (сводно)</h5>
+          <canvas id="kpiChart" height="140"></canvas>
+          <div class="small text-muted mt-3">
+            Средний балл: <b>{{ avg_grade|floatformat:2 }}</b>,
+            средняя посещаемость: <b>{{ avg_attendance|floatformat:1 }}%</b>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Что внутри</h5>
+          <ul class="mb-0">
+            <li>Импорт результатов (CSV)</li>
+            <li>Панель аналитики по группам и дисциплинам</li>
+            <li>Экспорт отчётов (CSV/PDF)</li>
+            <li>Роли: студент / преподаватель / админ</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% elif slug == "search" %}
+  <form class="mb-4" method="get">
+    <div class="input-group">
+      <input class="form-control" name="q" value="{{ q }}" placeholder="Поиск по новостям...">
+      <button class="btn btn-primary" type="submit">
+        <i class="bi bi-search me-1"></i>Найти
+      </button>
+    </div>
+    <div class="form-text">Ищет по заголовку и тексту новости.</div>
+  </form>
+
+  {% if q %}
+    <div class="mb-3 text-muted">
+      Запрос: <b>{{ q }}</b>. Найдено: <b>{{ results|length }}</b>
+    </div>
+  {% endif %}
+
+  {% for n in results %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title mb-1">{{ n.title }}</h5>
+        <div class="text-muted small mb-2">
+          <i class="bi bi-clock me-1"></i>{{ n.created_at|date:"d.m.Y H:i" }}
+        </div>
+        <div class="card-text">{{ n.body|linebreaks }}</div>
+      </div>
+    </div>
+  {% empty %}
+    {% if q %}
+      <p class="text-muted">Ничего не найдено.</p>
+    {% else %}
+      <p class="text-muted">Введите запрос в строку поиска.</p>
+    {% endif %}
+  {% endfor %}
+
+{% elif slug == "vk" %}
+  <p><a href="https://vk.com" target="_blank"><i class="bi bi-vk me-1"></i>Мы во ВКонтакте</a></p>
+
+{% elif slug == "telegram" %}
+  <p><a href="https://t.me" target="_blank"><i class="bi bi-telegram me-1"></i>Наш Telegram</a></p>
+
+{% elif slug == "youtube" %}
+  <p><a href="https://youtube.com" target="_blank"><i class="bi bi-youtube me-1"></i>YouTube-канал</a></p>
+
+{% else %}
+  <p class="text-muted">Раздел находится в разработке.</p>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+  {% if slug == "about" %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+      const avgGrade = Number("{{ avg_grade|floatformat:2 }}".replace(",", "."));
+      const avgAtt = Number("{{ avg_attendance|floatformat:1 }}".replace(",", "."));
+
+      const ctx = document.getElementById('kpiChart');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Средний балл', 'Посещаемость (%)'],
+          datasets: [{
+            label: 'KPI',
+            data: [avgGrade, avgAtt]
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    </script>
+  {% endif %}
+{% endblock %}
+{% extends "analytics/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1>{{ slug|capfirst }}</h1>
+  <p>Страница: {{ slug }}</p>
+</div>
+{% endblock %}

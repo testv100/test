@@ -1,0 +1,30 @@
+{% extends "analytics/base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">{{ page_title }}</h1>
+
+<div class="card">
+  <div class="card-body">
+    <p class="mb-2">
+      Раздел о дистанционном формате: правила доступа и рекомендации по работе в системе.
+    </p>
+    <ul class="mb-0">
+      <li>Вход в систему доступен через личную учётную запись</li>
+      <li>При проблемах со входом — обратитесь к администратору</li>
+      <li>Отчёты формируются автоматически на основе импортированных данных</li>
+    </ul>
+  </div>
+</div>
+
+<div class="card mt-3">
+  <div class="card-header">Технические требования</div>
+  <div class="card-body">
+    <ul class="mb-0">
+      <li>Современный браузер (Chrome/Firefox/Edge)</li>
+      <li>Разрешены cookie (для сессии)</li>
+      <li>Стабильное подключение к сети</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

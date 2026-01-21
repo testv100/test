@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% extends "analytics/base.html" %}
+{% block title %}Журнал действий{% endblock %}
+created_at = models.DateTimeField(auto_now_add=True)
+qs = AuditLog.objects.select_related('user').order_by('-created_at')
+qs = AuditLog.objects.select_related('user').order_by('-created_at', '-id')
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-3">
+  <div>
+
+    <h1 class="h4 mb-1">Журнал действий</h1>
+    <div class="text-muted">Импорт/экспорт и служебные операции</div>
+  </div>
+</div>
+
+
+
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-12 col-md-4">
+        <label class="form-label">Действие</label>
+        <select name="action" class="form-select form-select-sm">
+          <option value="">Все</option>
+          {% for val, label in actions %}
+            <option value="{{ val }}" {% if selected_action == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label">Поиск</label>
+        <input class="form-control form-control-sm" name="q" value="{{ q }}" placeholder="username или текст в details">
+      </div>
+      <div class="col-12 col-md-2 d-grid">
+        <button class="btn btn-primary btn-sm" type="submit">Найти</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-sm align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Время</th>
+            <th>Пользователь</th>
+            <th>Действие</th>
+            <th>Детали</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in page_obj %}
+            <tr>
+              <td class="text-muted">{{ row.timestamp }}</td>
+              <td>{{ row.user.username }}</td>
+              <td>{{ row.get_action_display }}</td>
+              <td style="max-width:520px; white-space:normal;">{{ row.details }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="4" class="text-muted">Записей нет</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+      <nav>
+        <ul class="pagination pagination-sm mb-0">
+          {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&action={{ selected_action }}&q={{ q }}">Назад</a></li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">Назад</span></li>
+          {% endif %}
+
+          <li class="page-item disabled"><span class="page-link">
+            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+          </span></li>
+
+          {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&action={{ selected_action }}&q={{ q }}">Вперёд</a></li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">Вперёд</span></li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+</title>
+</head>
+<body>
+
+</body>
+</html>

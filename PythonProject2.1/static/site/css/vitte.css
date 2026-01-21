@@ -1,0 +1,108 @@
+:root{
+  --vitte-red:#8f0020;     /* “университетский” бордово-красный */
+  --vitte-dark:#1f2430;
+  --vitte-light:#f5f6f8;
+  --vitte-text:#1a1d24;
+}
+.header-logo img {
+  transition: transform 0.2s ease;
+}
+
+.header-logo img:hover {
+  transform: scale(1.05);
+}
+<div class="d-flex align-items-center header-logo">
+
+.site{ color:var(--vitte-text); background:#fff; }
+
+.topbar{
+  background: var(--vitte-dark);
+  color:#fff;
+}
+.topbar-link{
+  color:#dfe3ea;
+  text-decoration:none;
+}
+.topbar-link:hover{ color:#fff; text-decoration:underline; }
+
+.header .brand-mark{
+  width:42px; height:42px; border-radius:10px;
+  background: var(--vitte-red);
+}
+.brand-title{ font-weight:700; line-height:1.1; color:var(--vitte-text); }
+.brand-subtitle{ font-size:12px; color:#6b7280; }
+
+.search .form-control{ min-width:320px; }
+.search .btn{ border-color: rgba(255,255,255,.35); }
+
+.vitte-nav{ background: var(--vitte-red); }
+.vitte-nav .nav-link{ font-weight:600; }
+.vitte-nav .dropdown-menu{ border-radius:14px; padding:.5rem; }
+
+.vitte-btn{ border-radius:999px; }
+
+.footer{
+  background: var(--vitte-dark);
+  color:#fff;
+}
+.footer a{ color:#dfe3ea; text-decoration:none; }
+.footer a:hover{ color:#fff; text-decoration:underline; }
+.footer-title{ font-weight:800; font-size:18px; }
+.footer-head{ font-weight:700; margin-bottom:.5rem; }
+.footer-list{ list-style:none; padding:0; margin:0; display:grid; gap:.35rem; }
+.footer-muted{ color:#b7c0cf; }
+.footer-bottom{ border-top:1px solid rgba(255,255,255,.12); color:#b7c0cf; }
+
+
+/* Анимации и активные состояния */
+a, .btn, .nav-link, .card, .vitte-card {
+  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease,
+              color .12s ease, border-color .12s ease, opacity .12s ease;
+}
+
+/* Навигация */
+.vitte-nav .nav-link {
+  position: relative;
+  opacity: .95;
+}
+.vitte-nav .nav-link:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+.vitte-nav .nav-link.active {
+  opacity: 1;
+}
+.vitte-nav .nav-link.active::after {
+  content: "";
+  position: absolute;
+  left: .5rem;
+  right: .5rem;
+  bottom: .35rem;
+  height: 2px;
+  background: rgba(255,255,255,.85);
+  border-radius: 999px;
+}
+
+/* Кнопки */
+.btn-vitte, .btn-outline-vitte, .vitte-btn {
+  border-radius: 999px;
+}
+.btn-vitte:hover, .btn-outline-vitte:hover, .vitte-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0,0,0,.12);
+}
+.btn-vitte:active, .btn-outline-vitte:active, .vitte-btn:active {
+  transform: translateY(0px) scale(.99);
+}
+
+/* Карточки / таблицы */
+.vitte-card, .card {
+  border-radius: 18px;
+}
+.vitte-card:hover, .card:hover {
+  box-shadow: 0 14px 30px rgba(0,0,0,.10);
+  transform: translateY(-1px);
+}
+.table-hover tbody tr:hover {
+  transform: translateY(-1px);
+}

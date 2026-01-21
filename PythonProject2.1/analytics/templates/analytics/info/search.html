@@ -1,0 +1,42 @@
+{% extends "analytics/base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">{{ page_title }}</h1>
+
+{% with query=request.GET.q %}
+  {% if query %}
+    <div class="alert alert-info">
+      Результаты поиска по запросу:
+      <strong>«{{ query }}»</strong>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <p class="mb-2">
+          Полнотекстовый поиск по данным пока не реализован.
+        </p>
+        <p class="mb-0 text-muted">
+          В дальнейшем здесь может быть поиск по новостям, дисциплинам, группам и отчётам.
+        </p>
+      </div>
+    </div>
+  {% else %}
+    <div class="alert alert-warning">
+      Поисковый запрос не задан.
+    </div>
+  {% endif %}
+{% endwith %}
+
+<div class="card mt-3">
+  <div class="card-header">Навигация</div>
+  <div class="list-group list-group-flush">
+    <a class="list-group-item list-group-item-action" href="{% url 'analytics:home' %}">
+      Главная
+    </a>
+    <a class="list-group-item list-group-item-action" href="{% url 'analytics:info' 'sitemap' %}">
+      Карта сайта
+    </a>
+  </div>
+</div>
+{% endblock %}

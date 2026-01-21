@@ -1,0 +1,54 @@
+{% extends "analytics/base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item"><a href="{% url 'analytics:home' %}">Главная</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ page_title }}</li>
+  </ol>
+</nav>
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <h1 class="h3 mb-0">{{ page_title }}</h1>
+  <div class="text-muted small">Форма обращения по вопросам работы сервиса</div>
+</div>
+
+{% if messages %}
+  {% for m in messages %}
+    <div class="alert alert-{{ m.tags }}">{% if m %}{{ m }}{% endif %}</div>
+  {% endfor %}
+{% endif %}
+
+<div class="card">
+  <div class="card-body">
+    <form method="post" class="row g-3">
+      {% csrf_token %}
+      <div class="col-md-6">
+        <label class="form-label">Имя</label>
+        {{ form.name }}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Email (необязательно)</label>
+        {{ form.email }}
+      </div>
+      <div class="col-12">
+        <label class="form-label">Сообщение</label>
+        {{ form.message }}
+      </div>
+      <div class="col-12 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-send me-1"></i>Отправить
+        </button>
+        <a class="btn btn-outline-secondary" href="{% url 'analytics:home' %}">На главную</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Быстро “причесать” виджеты Django под Bootstrap, если нет crispy/forms
+  document.querySelectorAll('input, textarea').forEach(el => el.classList.add('form-control'));
+</script>
+{% endblock %}

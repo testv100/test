@@ -1,0 +1,50 @@
+{% extends "analytics/base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <h1 class="h3 mb-0">{{ page_title }}</h1>
+  <div class="text-muted small">Раздел справочной информации</div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <p class="mb-2">
+          Это учебный веб-сервис аналитики успеваемости: импорт результатов, расчёт KPI, визуализация и выгрузка отчётов.
+        </p>
+        <ul class="mb-0">
+          <li>Импорт результатов из CSV</li>
+          <li>Просмотр показателей по группам и дисциплинам</li>
+          <li>Экспорт отчётов (CSV / PDF)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header">Документы</div>
+      <div class="card-body">
+        <ul class="mb-0">
+          <li><a href="{% url 'analytics:info' 'privacy' %}">Политика обработки персональных данных</a> (если страница есть)</li>
+          <li><a href="{% url 'analytics:info' 'sitemap' %}">Карта сайта</a></li>
+        </ul>
+        <div class="text-muted small mt-2">
+          Если “Политика ПДн” пока не готова — скажи, добавим аналогично.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">Быстрые ссылки</div>
+      <div class="list-group list-group-flush">
+        <a class="list-group-item list-group-item-action" href="{% url 'analytics:home' %}">Главная</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'analytics:dashboard' %}">Кабинет</a>
+        <a class="list-group-item list-group-item-action" href="{% url 'analytics:export_results' %}">Экспорт CSV</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
